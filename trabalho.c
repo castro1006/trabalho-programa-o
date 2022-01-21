@@ -172,3 +172,203 @@ int pedidoutilizador(Mobilidade M[TAMANHO], Utilizador U[TAMANHO], int contNOrde
 
     return (0);
 }
+
+int main(int argc, char *argv[])
+{
+    Utilizador Utiliz[TAMANHO];
+    int contaOrdem=0;  
+    int tempo, distancia, nif;
+    char codigoUti[50];
+    int  UtiCod, vericarDist,UtiInserir, remove;
+    int numOrdem=0;
+
+    Mobilidade Mob[TAMANHO];
+    float precoTot;
+    char codigoMob[50];
+    char tipo[50];
+    int opcao;
+    int disponivel=0, autonomia, quantidade=0;
+    int MobInserida, removeMob, CodVerificado;
+    int dist=autonomia;
+    int MobEntregue;
+    int precoTotal;
+
+
+    do {
+        opcao= menu();
+        switch (opcao){
+
+            case 1:      // inserir Mobilidade
+                printf("Codigo: ");
+                scanf("%s", codigoMob);
+
+                CodVerificado=verificarcod(Mob,codigoMob,quantidade);
+
+                while (CodVerificado==1){
+                    printf("Esse codigo ja foi aceite\n");
+                    printf("Codigo: ");
+                    scanf("%s", codigoMob);
+                    CodVerificado=verificarcod(Mob,codigoMob,quantidade);
+                }
+
+                printf("Tipo: ");
+                scanf("%s", tipo);
+                printf("Autonomia: ");
+                scanf("%d", &autonomia);
+                printf("precoTot: ");
+                scanf("%f", &precoTot);
+
+                MobInserida = inserirMobilidade(Mob,quantidade,codigoMob,tipo,autonomia,precoTot);
+                if (MobInserida == 1)
+                {
+                    printf("Foi aceite!\n");
+                    quantidade++;
+
+                }
+                else
+                    printf("Nao foi aceite!\n");
+
+                break;
+
+            case 2: 
+                printf("Numero do Pedido: ");
+                scanf("%d", &numOrdem);
+
+                MobEntregue=entregarMobilidade(Utiliz,Mob,contaOrdem,numOrdem,quantidade);
+                if (MobEntregue==0)
+                    break;
+
+                printf("Entregue com sucesso!!\n");
+
+                break;
+
+            case 3:                   
+                listarMobilidade(Mob, quantidade);
+                guardarFichMobilidade(Mob,quantidade);
+                quantidade = lerFichMobilidade(Mob);
+                break;
+
+            case 4:
+                printf("Codigo: ");
+                scanf("%s", codigoMob);
+                removeMob = removerMobilidade(Mob, quantidade, codigoMob);
+                while (removeMob==0){
+                    printf("Esse codigo nao existe\n");
+                    printf("Codigo: ");
+                    scanf("%s", codigoMob);
+                    removeMob = removerMobilidade(Mob, quantidade, codigoMob);
+                }
+                printf("Removido\n");
+                quantidade--;
+
+                break;
+
+            case 5:
+                printf("Codigo: ");
+                scanf("%s", codigoUti);
+                UtiCod=verificarcod(Mob,codigoUti,quantidade);
+
+                while (UtiCod=<0)
+                {
+                    printf("Codigo: ");
+                    scanf("%s", codigoUti);
+                    UtiCod=verificarcod(Mob,codigoUti,quantidade);
+                }
+
+                UtiCod=verificardisponivel(Mob,codigoUti,quantidade);
+                if (UtiCod == 0){
+                    break;
+                }
+
+                printf("NIF: ");
+                scanf("%d", &nif);
+                printf("Tempo: ");
+                scanf("%d", &tempo);
+                printf("Distancia: ");
+                scanf("%d", &distancia);
+                vericarDist=verificardistancia(Mob,codigoUti,quantidade,distancia);
+
+                while (vericarDist==0)
+                {
+                    printf("Distancia: ");
+                    scanf("%d", &distancia);
+                    vericarDist=verificardistancia(Mob,codigoUti,quantidade,distancia);
+                }
+
+                UtiInserir = pedidoutilizador(Mob, Utiliz, contaOrdem, nif, codigoUti, tempo, distancia, quantidade);
+
+                if (UtiInserir == 1)
+                {
+                    printf("O pedido foi aceite!\n");
+                    contaOrdem++;
+
+                }
+                else
+                    printf("Pedido recusado!\n");
+
+                break;
+
+            case 6:
+                printf("Numero do Pedido: ");
+                scanf("%d", &numOrdem);
+                remove=removerpedidos(Mob,Utiliz,quantidade,contaOrdem, numOrdem);
+
+                while (remove==0)
+                {
+                    printf("Nao existe esse Pedido\n");
+                    printf("Numero do Pedido: ");
+                    scanf("%d", &numOrdem);
+                    remove=removerpedidos(Mob,Utiliz,quantidade,contaOrdem, numOrdem);
+                }
+                printf("Removido com sucesso!!\n");
+                contaOrdem--;
+
+                break;
+            case 7:
+                listarpedidos(Utiliz,contaOrdem);
+                break;
+
+         
+            case 8:
+                printf("Numero do Pedido: ");
+                scanf("%d", &numOrdem);
+                precoTotal=calcularpreco(Utiliz,Mob,quantidade,contaOrdem,numOrdem);
+
+                while (precoTotal==0)
+                {
+                    printf("Numero de ordem: ");
+                    scanf("%d", &numOrdem);
+                    precoTotal=calcularpreco(Utiliz,Mob,quantidade,contaOrdem,numOrdem);
+                }
+                break;
+
+            case 9:
+                // ver transacoes
+                printf("Codigo: ");
+                scanf("%s", codigoMob);
+                CodVerificado=verificarcod(Mob,codigoMob,quantidade);
+
+                if (CodVerificado==0){
+                    printf("Esse codigo nao foi aceite\n");
+                    break;
+                }
+
+                verMovimentos(Utiliz,Mob,codigoMob,contaOrdem, quantidade);
+                break;
+            
+           
+            case 10:  guardarFichMobilidade(Mob,quantidade);   
+                      guardarFichUtilizador(Utiliz, quantidade);
+            break;
+
+            case 11: quantidade=lerFichMobilidade(Mob);
+                     quantidade=lerFichUtilizador(Utiliz);
+            break;
+
+            
+        }
+    } while (opcao != 0);
+
+    return(0);
+}
+
